@@ -13,26 +13,29 @@ datasource db {
   relationMode = "prisma"
 }
 
-// originally in the file
-// generator client {
-//   provider        = "prisma-client-js"
-//   previewFeatures = ["jsonProtocol"]
-// }
-
-// originally in the file
-// datasource db {
-//   provider = "sqlite"
-//   // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-//   // Further reading:
-//   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-//   // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-//   url      = env("DATABASE_URL")
-// }
-
-model Example {
-  id        String   @id @default(cuid())
+// create a model for a tweet
+model Tweet {
+  id        String   @id @default(uuid())
+  userId    String
+  content   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Like Like[]
+
+  @@index([userId])
+}
+
+// create a model for a like
+model Like {
+  userId  String
+  tweetId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+  @@id([userId, tweetId])
+  @@index([userId])
+  @@index([tweetId])
 }
 
 // Necessary for Next auth
@@ -75,6 +78,15 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  // Non Next Auth
+  tweets    Tweet[]
+  likes     Like[]
+  // by giving them the same relation name we are saying they are linked to one another
+  // all the followers of one user are linked up to the follows of another user that they are actually following
+  // these two simple lines allow us the ability to follow different users
+  followers User[]  @relation(name: "Followers")
+  follows   User[]  @relation(name: "Followers")
 }
 
 model VerificationToken {
