@@ -7,6 +7,8 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
+  // we need this line to allow the images from that url, so it is not an "unconfigured host"
+  images: { domains: ["cdn.discordapp.com"] },
 
   /**
    * If you have `experimental: { appDir: true }` set, then you must comment the below `i18n` config
