@@ -20,9 +20,12 @@ model Tweet {
   content   String
   createdAt DateTime @default(now())
 
-  user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Like Like[]
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes Like[]
 
+  // set up a uniqueness constraint between our createdAt and our id
+  // every single tweet will have a unique createdAt and id COMBINATION
+  @@unique([createdAt, id])
   @@index([userId])
 }
 
