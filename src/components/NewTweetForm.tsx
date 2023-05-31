@@ -22,7 +22,7 @@ export function NewTweetForm() {
   // ie. don't run the useLayoutEffect, because we are never authenticated on the server
 
   if (session.status !== "authenticated") {
-    return;
+    return null; // null is neccessary for TypeScript
   }
   return <Form />;
 }
