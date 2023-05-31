@@ -1,5 +1,6 @@
-import { useState, useLayoutEffect, useRef, useCallback } from "react";
+import { useState, useLayoutEffect, useRef, useCallback, type FormEvent } from "react";
 import { useSession } from "next-auth/react"
+import { api } from "~/utils/api";
 import { Button } from "./Button"
 import { ProfileImage } from "./ProfileImage"
 
@@ -57,10 +58,19 @@ export function Form() {
   // To avoid this, useLayoutEffect should only be used in components that render exclusively on the client.
   // See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
 
-
   // but there is a problem in that when we first load the page it doesn't work
   // because it doesn't have access this to Ref because it hasn't been defined yet
-  // so
+
+  // we can now use the tRCP api object from utils/api and then the useMutation hook
+  // https://tanstack.com/query/latest/docs/react/guides/mutations
+  const createTweet = api.tweet.create.useMutation({
+    // we have an onSuccess function in the useMutation() hook
+    // we can use it to see if the tweet is being created
+    onSuccess: (newTweet) => {
+      console.log("createTweet newTweet:", newTweet);
+      setInputValue("");
+    },
+  });
 
   if (session.status !== "authenticated") {
     // if the user is not authenticated then do not render out the NewTweetForm component
@@ -68,8 +78,15 @@ export function Form() {
     return null; // returning null is neccessary for TypeScript
   }
 
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    // we call the createTweet function this will create a tweet inside of our database for us
+    createTweet.mutate({ content: inputValue} )
+  }
+
+  // add an onSubmit event handler to the form to hookup the createTweet
   return (
-    <form className="flex flex-col gap-2 border-b px-4 py-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 border-b px-4 py-2">
       <div className="flex gap-4">
         <ProfileImage src={session.data.user.image} />
         <textarea
