@@ -3,6 +3,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Link from "next/link";
 import { ProfileImage } from "./ProfileImage";
 import { VscHeartFilled, VscHeart } from "react-icons/vsc";
+import { IconHoverEffect } from "./IconHoverEffect";
 
 // define the types for Tweet
 type Tweet = {
@@ -137,21 +138,25 @@ function HeartButton({ likedByMe, likeCount }: HeartButtonProps) {
   // if the user is logged in then it should be a clickable button
   return (
     <button
-      // group allows us to make other things happen when we hover over the button
-      // we use conditional classes if for it is liked or not
-      className={`group flex items-center gap-1 self-start transition-colors duration-200 ${
+      // "group" => when you need to style an element based on the state of some parent element,
+      // mark the parent with the group class, and use group-* modifiers like group-hover to style the target element
+      // we use conditional classes for if it is likedByMe or not
+      className={`group -ml-2 flex items-center gap-1 self-start transition-colors duration-200 ${
         likedByMe
           ? "text-red-500"
           : "text-gray-500 hover:text-red-500 focus-visible:text-red-500"
       }`}
     >
-      <HeartIcon
-        className={`transition-colors duration-200 ${
-          likedByMe
-            ? "fill-red-500"
-            : "fill-gray-500 group-hover:fill-red-500 group-focus-visible:fill-red-500"
-        }`}
-      />
+      {/* we build a custom wrapper IconHoverEffect that will apply hover styles to the HeartIcon */}
+      <IconHoverEffect red>
+        <HeartIcon
+          className={`transition-colors duration-200 ${
+            likedByMe
+              ? "fill-red-500"
+              : "fill-gray-500 group-hover:fill-red-500 group-focus-visible:fill-red-500"
+          }`}
+        />
+      </IconHoverEffect>
       <span>{likeCount}</span>
     </button>
   );
