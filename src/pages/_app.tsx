@@ -15,7 +15,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <SessionProvider session={session}>
       <Head>
         <title>T3 Social Media</title>
-        <meta name="description" content="This is a T3 Social Media App"/>
+        <meta name="description" content="This is a T3 Social Media App" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="container mx-auto flex items-start sm:pr-4">

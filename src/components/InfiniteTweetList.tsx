@@ -1,7 +1,7 @@
 import InfiniteScroll from "react-infinite-scroll-component";
 
 // define the types for Tweet
-type Tweet =  {
+type Tweet = {
   id: string;
   content: string;
   createdAt: Date;
@@ -17,9 +17,15 @@ type InfiniteTweetListProps = {
   hasMore: boolean;
   fetchNewTweets: () => Promise<unknown>;
   tweets?: Tweet[];
-}
+};
 
-export function InfiniteTweetList ({ tweets, isError, isLoading, fetchNewTweets, hasMore }: InfiniteTweetListProps) {
+export function InfiniteTweetList({
+  tweets,
+  isError,
+  isLoading,
+  fetchNewTweets,
+  hasMore,
+}: InfiniteTweetListProps) {
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
@@ -30,19 +36,28 @@ export function InfiniteTweetList ({ tweets, isError, isLoading, fetchNewTweets,
     return null;
   }
   if (tweets == null || tweets.length === 0) {
-    return <h2 className="my-4 text-center text-2xl text-gray-500">No Tweets</h2>
+    return (
+      <h2 className="my-4 text-center text-2xl text-gray-500">No Tweets</h2>
+    );
   }
 
-  return <ul>
-    {/* we use an imported library custom component, an add the required props: */}
-    {/* dataLength which is the length of our data */}
-    {/* next which is the function it calls to get our next piece of data */}
-    {/* hasMore which is a boolean if there is more data */}
-    {/* loader which is the loading element */}
-    <InfiniteScroll dataLength={tweets.length} next={fetchNewTweets} hasMore={hasMore} loader={"Loading..."}>
-      {tweets.map(tweet => {
-        return <div key={tweet.id}>{tweet.content}</div>
-      })}
-    </InfiniteScroll>
+  return (
+    <ul>
+      {/* we use an imported library custom component, an add the required props: */}
+      {/* dataLength which is the length of our data */}
+      {/* next which is the function it calls to get our next piece of data */}
+      {/* hasMore which is a boolean if there is more data */}
+      {/* loader which is the loading element */}
+      <InfiniteScroll
+        dataLength={tweets.length}
+        next={fetchNewTweets}
+        hasMore={hasMore}
+        loader={"Loading..."}
+      >
+        {tweets.map((tweet) => {
+          return <div key={tweet.id}>{tweet.content}</div>;
+        })}
+      </InfiniteScroll>
     </ul>
+  );
 }

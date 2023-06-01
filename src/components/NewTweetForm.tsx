@@ -1,8 +1,14 @@
-import { useState, useLayoutEffect, useRef, useCallback, type FormEvent } from "react";
-import { useSession } from "next-auth/react"
+import {
+  useState,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+  type FormEvent,
+} from "react";
+import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import { Button } from "./Button"
-import { ProfileImage } from "./ProfileImage"
+import { Button } from "./Button";
+import { ProfileImage } from "./ProfileImage";
 
 // this is a way to dynamically resize the textarea to exactly fit how much text is in it
 function updateTextAreaSize(textArea?: HTMLTextAreaElement) {
@@ -10,7 +16,7 @@ function updateTextAreaSize(textArea?: HTMLTextAreaElement) {
     return;
   }
   textArea.style.height = "0";
-  textArea.style.height = `${textArea.scrollHeight}px`
+  textArea.style.height = `${textArea.scrollHeight}px`;
 }
 
 // [*] So to fix this we need to extract the form logic into a separate function just "Form"
@@ -45,7 +51,7 @@ export function Form() {
 
   // create a useEffect that uses the function above to update the text area size using that ref
   // useEffect(() => {
-    // updateTextAreaSize(textAreaRef.current);
+  // updateTextAreaSize(textAreaRef.current);
   // }, [inputValue])
 
   // ^ this should be useLayoutEffect not useEffect because we are changing the height of something
@@ -81,12 +87,15 @@ export function Form() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     // we call the createTweet function this will create a tweet inside of our database for us
-    createTweet.mutate({ content: inputValue} )
+    createTweet.mutate({ content: inputValue });
   }
 
   // add an onSubmit event handler to the form to hookup the createTweet
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 border-b px-4 py-2">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-2 border-b px-4 py-2"
+    >
       <div className="flex gap-4">
         <ProfileImage src={session.data.user.image} />
         <textarea
@@ -99,11 +108,12 @@ export function Form() {
           // set the value as the inputValue state
           value={inputValue}
           // onChange update the inputValue state
-          onChange={event => setInputValue(event.target.value)}
+          onChange={(event) => setInputValue(event.target.value)}
           className="flex-grow resize-none overflow-hidden p-4 text-lg outline-none"
-          placeholder="What's happening?"/>
+          placeholder="What's happening?"
+        />
       </div>
       <Button className="self-end">Tweet</Button>
     </form>
-  )
+  );
 }

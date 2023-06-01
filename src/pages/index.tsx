@@ -23,22 +23,23 @@ function RecentTweets() {
     {},
     // whenever i want to get the next piece of data
     // use this nextCursor and pass it up inside of our TRPC Query
-    { getNextPageParam: lastPage => lastPage.nextCursor}
+    { getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
 
   console.log("RecentTweet tweets:", tweets);
 
-
   return (
     <InfiniteTweetList
       // now we can take the tweets, if there is data, it will give us "pages" and we can map through each one
-      tweets={tweets.data?.pages.flatMap(page => page.tweets)}
+      tweets={tweets.data?.pages.flatMap((page) => page.tweets)}
       isError={tweets.isError}
       isLoading={tweets.isLoading}
-      hasMore={tweets.hasNextPage}
+      hasMore={tweets.hasNextPage ?? false}
+      // ?? is to fix typescript error:
+      // if tweets.hasNextPage is undefined, it will default to false, satisfying the type requirement of boolean for the hasMore prop.
       fetchNewTweets={tweets.fetchNextPage}
     />
-    )
+  );
 }
 
 export default Home;
