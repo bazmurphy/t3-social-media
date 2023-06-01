@@ -118,4 +118,29 @@ export const tweetRouter = createTRPCRouter({
       // return the tweet
       return tweet;
     }),
+
+  toggleLike: protectedProcedure
+    // our input takes in an object with a single property id that is a string
+    .input(z.object({ id: z.string() }))
+    // we run a mutation, that takes in an input of id, and a context
+    .mutation(async ({ input: { id }, ctx }) => {
+      // we build an object using the arguments passed in to use lower down
+      const data = { tweetId: id, userId: ctx.session.user.id };
+      // check to see if we have a Like that exists for the Tweet
+      const existingLike = await ctx.prisma.like.findUnique({
+        where: { userId_tweetId: data },
+      });
+
+      if (existingLike == null) {
+        // if the like does not exist, we need to create one
+        await ctx.prisma.like.create({ data });
+        // return to the client that we added a like
+        return { addedLike: true };
+      } else {
+        // if the like does exist, we need to delete it
+        await ctx.prisma.like.delete({ where: { userId_tweetId: data } });
+        // return to the client that we did not add the like
+        return { addedLike: false };
+      }
+    }),
 });

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ProfileImage } from "./ProfileImage";
 import { VscHeartFilled, VscHeart } from "react-icons/vsc";
 import { IconHoverEffect } from "./IconHoverEffect";
+import { api } from "~/utils/api";
 
 // define the types for Tweet
 type Tweet = {
@@ -84,6 +85,14 @@ function TweetCard({
   likeCount,
   likedByMe,
 }: Tweet) {
+  // get the api route toggleLike
+  const toggleLike = api.tweet.toggleLike.useMutation();
+
+  // create a function that uses the "toggleLike" method on the "tweet" router
+  function handleToggleLike() {
+    toggleLike.mutate({ id });
+  }
+
   return (
     <li className="flex gap-4 border-b px-4 py-4">
       <Link href={`/profiles/${user.id}`}>
@@ -105,7 +114,12 @@ function TweetCard({
         {/* if we have enters or whitespaces in our code all of them will show with "whitespace-pre-wrap" */}
         <p className="whitespace-pre-wrap">{content}</p>
         {/* custom component we make below to deal with the liking of tweets */}
-        <HeartButton likedByMe={likedByMe} likeCount={likeCount} />
+        <HeartButton
+          onClick={handleToggleLike}
+          isLoading={toggleLike.isLoading}
+          likedByMe={likedByMe}
+          likeCount={likeCount}
+        />
       </div>
     </li>
   );
@@ -113,12 +127,19 @@ function TweetCard({
 
 // type the HeartButtonProps
 type HeartButtonProps = {
+  onClick: () => void;
+  isLoading: boolean;
   likedByMe: boolean;
   likeCount: number;
 };
 
 // create a HeartButton component
-function HeartButton({ likedByMe, likeCount }: HeartButtonProps) {
+function HeartButton({
+  isLoading,
+  onClick,
+  likedByMe,
+  likeCount,
+}: HeartButtonProps) {
   // get the session to get the user to see if they are logged in
   const session = useSession();
 
@@ -138,6 +159,8 @@ function HeartButton({ likedByMe, likeCount }: HeartButtonProps) {
   // if the user is logged in then it should be a clickable button
   return (
     <button
+      disabled={isLoading}
+      onClick={onClick}
       // "group" => when you need to style an element based on the state of some parent element,
       // mark the parent with the group class, and use group-* modifiers like group-hover to style the target element
       // we use conditional classes for if it is likedByMe or not
