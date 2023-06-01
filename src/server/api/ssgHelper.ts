@@ -11,7 +11,8 @@ export function ssgHelper() {
     // and export the createInnerTRPCContext function
     // and we want to pass it a session of null
     // because if we are doing static site generation we don't have any user information
-    ctx: createInnerTRPCContext({ session: null }),
+    // [2] we also add the revalidateSSG function here
+    ctx: createInnerTRPCContext({ session: null, revalidateSSG: null }),
     transformer: superjson,
   });
 }
