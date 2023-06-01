@@ -85,8 +85,58 @@ function TweetCard({
   likeCount,
   likedByMe,
 }: Tweet) {
-  // get the api route toggleLike
-  const toggleLike = api.tweet.toggleLike.useMutation();
+  // we get some utility functions so we can refresh our data
+  const trcpUtils = api.useContext();
+
+  // the useMutation hook from React Query allows you to define and execute mutation operations, such as creating, updating, or deleting data on a server.
+  // It simplifies the process of interacting with an API by handling the request, response, and state management automatically.
+  const toggleLike = api.tweet.toggleLike.useMutation({
+    onSuccess: ({ addedLike }) => {
+      // [0] this is one way to do it, it invalidates all of the current data and refetches it
+      // await trcpUtils.tweet.infiniteFeed.invalidate();
+
+      // [2] we define the updateData function here:
+      // this has the exact same type as the 2nd parameter we pass to the function below
+      const updateData: Parameters<
+        // defining its type
+        typeof trcpUtils.tweet.infiniteFeed.setInfiniteData
+      >[1] = (oldData) => {
+        // if we have nothing in our current data (cache) then return immediately
+        if (oldData == null) {
+          return;
+        }
+        // otherwise update our current data (cache) and return the new version
+        const countModifier = addedLike ? 1 : -1;
+        return {
+          ...oldData,
+          // map through the pages
+          pages: oldData.pages.map((page) => {
+            return {
+              ...page,
+              tweets: page.tweets.map((tweet) => {
+                // if the tweet matches the id, then modify the likeCount, and set the likedByMe to the addedLike boolean
+                if (tweet.id === id) {
+                  return {
+                    ...tweet,
+                    likeCount: tweet.likeCount + countModifier,
+                    likedByMe: addedLike,
+                  };
+                }
+                // otherwise return the tweet in it's original state
+                return tweet;
+              }),
+            };
+          }),
+        };
+      };
+
+      // [1] but we can do it in a better way:
+      // we call setInfiniteData, and pass it the parameters, which in our case is an empty object
+      // and then we pass it a function updateData which we will define above
+      // we will have multiple different ways to call this and we want to update all of them anytime we toggle any like at all
+      trcpUtils.tweet.infiniteFeed.setInfiniteData({}, updateData);
+    },
+  });
 
   // create a function that uses the "toggleLike" method on the "tweet" router
   function handleToggleLike() {
