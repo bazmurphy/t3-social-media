@@ -13,6 +13,8 @@ import { IconHoverEffect } from "~/components/IconHoverEffect";
 import { VscArrowLeft } from "react-icons/vsc";
 import { ProfileImage } from "~/components/ProfileImage";
 import { InfiniteTweetList } from "~/components/InfiniteTweetList";
+import { Button } from "~/components/Button";
+import { useSession } from "next-auth/react";
 
 // Any time we try to access a profile page..
 // It will ask have I accessed this page before?
@@ -71,6 +73,11 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
             {profile.followsCount} Following
           </div>
         </div>
+        <FollowButton
+          isFollowing={profile.isFollowing}
+          userId={id}
+          onClick={() => null}
+        />
       </header>
       <main>
         <InfiniteTweetList
@@ -85,6 +92,30 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
     </>
   );
 };
+
+function FollowButton({
+  userId,
+  isFollowing,
+  onClick,
+}: {
+  userId: string;
+  isFollowing: boolean;
+  onClick: () => void;
+}) {
+  // check our session
+  const session = useSession();
+
+  // if the user is not logged in, or the user is the same as the one logged in (you cannot follow yourself)
+  if (session.status !== "authenticated" || session.data.user.id === userId) {
+    return null;
+  }
+
+  return (
+    <Button onClick={onClick} small gray={isFollowing}>
+      {isFollowing ? "Unfollow" : "Follow"}
+    </Button>
+  );
+}
 
 const pluralRules = new Intl.PluralRules();
 function getPlural(number: number, singular: string, plural: string) {

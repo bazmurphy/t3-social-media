@@ -137,6 +137,12 @@ function TweetCard({
       // we will have multiple different ways to call this and we want to update all of them anytime we toggle any like at all
       trcpUtils.tweet.infiniteFeed.setInfiniteData({}, updateData);
 
+      // getting all the tweets for users we are following
+      trcpUtils.tweet.infiniteFeed.setInfiniteData(
+        { onlyFollowing: true },
+        updateData
+      );
+
       // getting all the tweets for that specific userId
       trcpUtils.tweet.infiniteProfileFeed.setInfiniteData(
         { userId: user.id },
