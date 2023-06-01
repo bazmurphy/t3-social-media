@@ -1,4 +1,8 @@
+import { useSession } from "next-auth/react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Link from "next/link";
+import { ProfileImage } from "./ProfileImage";
+import { VscHeartFilled, VscHeart } from "react-icons/vsc";
 
 // define the types for Tweet
 type Tweet = {
@@ -55,9 +59,100 @@ export function InfiniteTweetList({
         loader={"Loading..."}
       >
         {tweets.map((tweet) => {
-          return <div key={tweet.id}>{tweet.content}</div>;
+          // we now use the TweetCard component, and spread in the tweet object
+          return <TweetCard key={tweet.id} {...tweet} />;
         })}
       </InfiniteScroll>
     </ul>
+  );
+}
+
+// The Intl object in JavaScript stands for "Internationalization."
+// It provides a set of functionalities for formatting and handling internationalization-related tasks, such as formatting dates, numbers, currencies, and handling language-specific string comparisons.
+// undefined = the default locale
+const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "short",
+});
+
+// create a Tweet Card component
+function TweetCard({
+  id,
+  user,
+  content,
+  createdAt,
+  likeCount,
+  likedByMe,
+}: Tweet) {
+  return (
+    <li className="flex gap-4 border-b px-4 py-4">
+      <Link href={`/profiles/${user.id}`}>
+        <ProfileImage src={user.image} />{" "}
+      </Link>
+      <div className="flex flex-grow flex-col">
+        <div className="flex gap-1">
+          <Link
+            href={`/profiles/${user.id}`}
+            className="font-bold outline-none hover:underline focus-visible:underline"
+          >
+            {user.name}
+          </Link>
+          <span className="text-gray-500">-</span>
+          <span className="text-gray-500">
+            {dateTimeFormatter.format(createdAt)}
+          </span>
+        </div>
+        {/* if we have enters or whitespaces in our code all of them will show with "whitespace-pre-wrap" */}
+        <p className="whitespace-pre-wrap">{content}</p>
+        {/* custom component we make below to deal with the liking of tweets */}
+        <HeartButton likedByMe={likedByMe} likeCount={likeCount} />
+      </div>
+    </li>
+  );
+}
+
+// type the HeartButtonProps
+type HeartButtonProps = {
+  likedByMe: boolean;
+  likeCount: number;
+};
+
+// create a HeartButton component
+function HeartButton({ likedByMe, likeCount }: HeartButtonProps) {
+  // get the session to get the user to see if they are logged in
+  const session = useSession();
+
+  // conditional logic for heart icon
+  const HeartIcon = likedByMe ? VscHeartFilled : VscHeart;
+
+  // if the user is not logged in
+  if (session.status !== "authenticated") {
+    return (
+      <div className="mb-1 mt-1 flex items-center gap-3 self-start text-gray-500">
+        <HeartIcon />
+        <span>{likeCount}</span>
+      </div>
+    );
+  }
+
+  // if the user is logged in then it should be a clickable button
+  return (
+    <button
+      // group allows us to make other things happen when we hover over the button
+      // we use conditional classes if for it is liked or not
+      className={`group flex items-center gap-1 self-start transition-colors duration-200 ${
+        likedByMe
+          ? "text-red-500"
+          : "text-gray-500 hover:text-red-500 focus-visible:text-red-500"
+      }`}
+    >
+      <HeartIcon
+        className={`transition-colors duration-200 ${
+          likedByMe
+            ? "fill-red-500"
+            : "fill-gray-500 group-hover:fill-red-500 group-focus-visible:fill-red-500"
+        }`}
+      />
+      <span>{likeCount}</span>
+    </button>
   );
 }
