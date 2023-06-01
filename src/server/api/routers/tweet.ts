@@ -48,6 +48,27 @@ export const tweetRouter = createTRPCRouter({
       }
     ),
 
+  infiniteProfileFeed: publicProcedure
+    // this is very similar to the above^
+    .input(
+      z.object({
+        limit: z.number().optional(),
+        cursor: z.object({ id: z.string(), createdAt: z.date() }).optional(),
+        // a required userId that we pass along
+        userId: z.string(),
+      })
+    )
+    .query(async ({ input: { limit = 10, cursor, userId }, ctx }) => {
+      // we call the reusable function we created at the bottom
+      return getInfiniteTweets({
+        limit,
+        ctx,
+        cursor,
+        // where the currentUserId is the particular userId (checking for one user's tweets)
+        whereClause: { userId },
+      });
+    }),
+
   create: protectedProcedure // protectedProdecure means you need to be logged in, in order to do this.
     .input(z.object({ content: z.string() }))
     // mutation allows us to modify data

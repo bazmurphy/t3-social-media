@@ -136,6 +136,12 @@ function TweetCard({
       // and then we pass it a function updateData which we will define above
       // we will have multiple different ways to call this and we want to update all of them anytime we toggle any like at all
       trcpUtils.tweet.infiniteFeed.setInfiniteData({}, updateData);
+
+      // getting all the tweets for that specific userId
+      trcpUtils.tweet.infiniteProfileFeed.setInfiniteData(
+        { userId: user.id },
+        updateData
+      );
     },
   });
 

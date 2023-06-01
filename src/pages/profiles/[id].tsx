@@ -12,6 +12,7 @@ import Link from "next/link";
 import { IconHoverEffect } from "~/components/IconHoverEffect";
 import { VscArrowLeft } from "react-icons/vsc";
 import { ProfileImage } from "~/components/ProfileImage";
+import { InfiniteTweetList } from "~/components/InfiniteTweetList";
 
 // Any time we try to access a profile page..
 // It will ask have I accessed this page before?
@@ -28,6 +29,12 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
 }) => {
   // we use api object to make a query request to the tRPC server
   const { data: profile } = api.profile.getById.useQuery({ id });
+
+  const tweets = api.tweet.infiniteProfileFeed.useInfiniteQuery(
+    { userId: id },
+    // The getNextPageParam and getPreviousPageParam options are available for both determining if there is more data to load and the information to fetch it. This information is supplied as an additional parameter in the query function
+    { getNextPageParam: (lastPage) => lastPage.nextCursor }
+  );
 
   // if the profile is null, then we are on a profile page that doesn't exist
   if (profile == null || profile.name == null) {
@@ -65,6 +72,16 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           </div>
         </div>
       </header>
+      <main>
+        <InfiniteTweetList
+          // we take the tweets, if there is data, it will give us "pages" and we can map through each one
+          tweets={tweets.data?.pages.flatMap((page) => page.tweets)}
+          isError={tweets.isError}
+          isLoading={tweets.isLoading}
+          hasMore={tweets.hasNextPage}
+          fetchNewTweets={tweets.fetchNextPage}
+        />
+      </main>
     </>
   );
 };
