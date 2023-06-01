@@ -49,6 +49,9 @@ export function Form() {
     textAreaRef.current = textArea;
   }, []);
 
+  // bring in trcpUtils to be able to auto-refresh the tweet feed
+  const trcpUtils = api.useContext();
+
   // create a useEffect that uses the function above to update the text area size using that ref
   // useEffect(() => {
   // updateTextAreaSize(textAreaRef.current);
@@ -75,6 +78,42 @@ export function Form() {
     onSuccess: (newTweet) => {
       console.log("createTweet newTweet:", newTweet);
       setInputValue("");
+
+      // this should be impossible to trigger because there isn't a scenario where we can make a tweet but are not authenticated
+      if (session.status !== "authenticated") {
+        return;
+      }
+
+      // we setInfiniteData to update the tweets on the page
+      trcpUtils.tweet.infiniteFeed.setInfiniteData({}, (oldData) => {
+        // make a check if oldData is null, or if the first "page" of oldData is null...
+        if (oldData == null || oldData.pages[0] == null) {
+          return;
+        }
+
+        // we construct an object for the new tweet that has been entered into the form
+        const newCacheTweet = {
+          ...newTweet,
+          likeCount: 0,
+          likedByMe: false,
+          user: {
+            id: session.data.user.id,
+            name: session.data.user.name || null,
+            image: session.data.user.image || null,
+          },
+        };
+
+        return {
+          ...oldData,
+          pages: [
+            {
+              ...oldData.pages[0], // get the first page
+              tweets: [newCacheTweet, ...oldData.pages[0].tweets], // add new tweet to the beginning of the array
+            },
+            ...oldData.pages.slice(1), // get all the pages after the first
+          ],
+        };
+      });
     },
   });
 

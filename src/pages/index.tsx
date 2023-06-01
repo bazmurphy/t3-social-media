@@ -34,7 +34,7 @@ function RecentTweets() {
       tweets={tweets.data?.pages.flatMap((page) => page.tweets)}
       isError={tweets.isError}
       isLoading={tweets.isLoading}
-      hasMore={tweets.hasNextPage ?? false}
+      hasMore={tweets.hasNextPage}
       // ?? is to fix typescript error:
       // if tweets.hasNextPage is undefined, it will default to false, satisfying the type requirement of boolean for the hasMore prop.
       fetchNewTweets={tweets.fetchNextPage}
