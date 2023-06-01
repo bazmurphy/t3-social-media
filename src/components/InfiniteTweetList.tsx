@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ProfileImage } from "./ProfileImage";
 import { VscHeartFilled, VscHeart } from "react-icons/vsc";
 import { IconHoverEffect } from "./IconHoverEffect";
+import { LoadingSpinner } from "./LoadingSpinner";
 import { api } from "~/utils/api";
 
 // define the types for Tweet
@@ -33,7 +34,7 @@ export function InfiniteTweetList({
   hasMore = false,
 }: InfiniteTweetListProps) {
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return <LoadingSpinner />;
   }
   if (isError) {
     return <h1>Error...</h1>;
@@ -58,7 +59,7 @@ export function InfiniteTweetList({
         dataLength={tweets.length}
         next={fetchNewTweets}
         hasMore={hasMore}
-        loader={"Loading..."}
+        loader={<LoadingSpinner />}
       >
         {tweets.map((tweet) => {
           // we now use the TweetCard component, and spread in the tweet object
